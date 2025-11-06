@@ -3,6 +3,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchTasks, deleteTask } from '../redux/tasksSlice';
 import TaskTable from '../components/TaskTable';
 import { useNavigate } from 'react-router-dom';
+import { FaThList, FaThLarge } from 'react-icons/fa';
+import TaskCardView from '../components/TaskCardView';
+
 
 export default function TaskListPage() {
   const dispatch = useDispatch();
@@ -11,6 +14,8 @@ export default function TaskListPage() {
 
   const [filter, setFilter] = useState('All');
   const [filteredTasks, setFilteredTasks] = useState([]);
+  const [viewMode,setViewMode] = useState('list');
+
 
   useEffect(() => {
     dispatch(fetchTasks());
@@ -42,22 +47,54 @@ export default function TaskListPage() {
 
   return (
     <div className="container p-4 my-4">
-      <h1 className="h2 mb-4">Task</h1>
+      <h1 className="h2 mb-4">Tasks</h1>
+
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="form-select w-auto"
-        >
-          <option value="All">All</option>
-          <option value="Pending">Pending</option>
-          <option value="Completed">Completed</option>
-        </select>
+        <div className="d-flex align-items-center gap-2">
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="form-select w-auto"
+          >
+            <option value="All">All</option>
+            <option value="Pending">Pending</option>
+            <option value="Completed">Completed</option>
+          </select>
+
+          <button
+            className="btn btn-outline-secondary"
+            onClick={() => setViewMode(viewMode === 'list' ? 'card' : 'list')}
+          >
+            {viewMode === 'list' ? (
+              <>
+                <FaThLarge className="me-1" /> Card View
+              </>
+            ) : (
+              <>
+                <FaThList className="me-1" /> List View
+              </>
+            )}
+          </button>
+        </div>
+
         <button onClick={() => navigate('/tasks/new')} className="btn btn-primary">
           Create Task
         </button>
       </div>
-      <TaskTable tasks={filteredTasks} onDelete={handleDelete} onDragEnd={handleDragEnd} />
+
+      {viewMode === 'list' ? (
+        <TaskTable
+          tasks={filteredTasks}
+          onDelete={handleDelete}
+          onDragEnd={handleDragEnd}
+        />
+      ) : (
+        <TaskCardView
+          tasks={filteredTasks}
+          onDelete={handleDelete}
+          onDragEnd={handleDragEnd}
+        />
+      )}
     </div>
   );
 }
